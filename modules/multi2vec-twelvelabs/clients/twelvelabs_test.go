@@ -25,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	enterrors "github.com/weaviate/weaviate/entities/errors"
 	"github.com/weaviate/weaviate/entities/schema"
 	"github.com/weaviate/weaviate/usecases/config"
 	"github.com/weaviate/weaviate/usecases/modulecomponents"
@@ -136,6 +137,7 @@ func TestClient(t *testing.T) {
 
 		require.NotNil(t, err)
 		assert.Contains(t, err.Error(), "no api key found")
+		assert.ErrorAs(t, err, new(enterrors.ErrModulePrecondition))
 	})
 }
 

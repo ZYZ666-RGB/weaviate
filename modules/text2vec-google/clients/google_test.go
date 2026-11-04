@@ -27,6 +27,7 @@ import (
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	enterrors "github.com/weaviate/weaviate/entities/errors"
 	"github.com/weaviate/weaviate/entities/schema"
 	"github.com/weaviate/weaviate/usecases/config"
 	"github.com/weaviate/weaviate/usecases/modulecomponents"
@@ -246,6 +247,7 @@ func TestClient(t *testing.T) {
 		assert.Equal(t, err.Error(), "Google API Key: no api key found "+
 			"neither in request header: X-Palm-Api-Key or X-Goog-Api-Key or X-Goog-Vertex-Api-Key or X-Goog-Studio-Api-Key "+
 			"nor in environment variable under PALM_APIKEY or GOOGLE_APIKEY")
+		assert.ErrorAs(t, err, new(enterrors.ErrModulePrecondition))
 	})
 
 	t.Run("when X-Palm-Api-Key header is passed but empty", func(t *testing.T) {

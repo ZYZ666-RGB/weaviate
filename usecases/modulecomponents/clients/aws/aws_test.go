@@ -20,6 +20,8 @@ import (
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	enterrors "github.com/weaviate/weaviate/entities/errors"
 )
 
 func TestClient(t *testing.T) {
@@ -34,6 +36,7 @@ func TestClient(t *testing.T) {
 
 		require.NotNil(t, err)
 		assert.Equal(t, "AWS Access Key: no access key found neither in request header: X-AWS-Access-Key nor in environment variable under AWS_ACCESS_KEY_ID or AWS_ACCESS_KEY", err.Error())
+		assert.ErrorAs(t, err, new(enterrors.ErrModulePrecondition))
 	})
 
 	t.Run("when X-Aws-Secret-Key header is passed but empty", func(t *testing.T) {
@@ -47,6 +50,7 @@ func TestClient(t *testing.T) {
 
 		require.NotNil(t, err)
 		assert.Equal(t, "AWS Secret Key: no secret found neither in request header: X-AWS-Secret-Key nor in environment variable under AWS_SECRET_ACCESS_KEY or AWS_SECRET_KEY", err.Error())
+		assert.ErrorAs(t, err, new(enterrors.ErrModulePrecondition))
 	})
 }
 

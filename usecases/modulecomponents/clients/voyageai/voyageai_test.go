@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	enterrors "github.com/weaviate/weaviate/entities/errors"
 	"github.com/weaviate/weaviate/usecases/modulecomponents"
 
 	"github.com/pkg/errors"
@@ -143,6 +144,7 @@ func TestClient(t *testing.T) {
 		assert.Equal(t, err.Error(), "VoyageAI API Key: no api key found "+
 			"neither in request header: X-VoyageAI-Api-Key "+
 			"nor in environment variable under VOYAGEAI_APIKEY")
+		assert.ErrorAs(t, err, new(enterrors.ErrModulePrecondition))
 	})
 
 	t.Run("when X-VoyageAI-Api-Key header is passed but empty", func(t *testing.T) {

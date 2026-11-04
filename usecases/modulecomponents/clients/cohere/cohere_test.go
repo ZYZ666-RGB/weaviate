@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	enterrors "github.com/weaviate/weaviate/entities/errors"
 	"github.com/weaviate/weaviate/usecases/modulecomponents"
 
 	"github.com/pkg/errors"
@@ -162,6 +163,7 @@ func TestClient(t *testing.T) {
 		assert.Equal(t, err.Error(), "Cohere API Key: no api key found "+
 			"neither in request header: X-Cohere-Api-Key "+
 			"nor in environment variable under COHERE_APIKEY")
+		assert.ErrorAs(t, err, new(enterrors.ErrModulePrecondition))
 	})
 
 	t.Run("when X-Cohere-Api-Key header is passed but empty", func(t *testing.T) {

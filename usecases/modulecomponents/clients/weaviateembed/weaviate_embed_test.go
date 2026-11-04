@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	enterrors "github.com/weaviate/weaviate/entities/errors"
 	"github.com/weaviate/weaviate/entities/moduletools"
 	"github.com/weaviate/weaviate/usecases/modulecomponents"
 
@@ -98,6 +99,7 @@ func TestClient(t *testing.T) {
 
 		require.NotNil(t, err)
 		assert.Equal(t, "authentication token: no authentication token found in request header: Authorization", err.Error())
+		assert.ErrorAs(t, err, new(enterrors.ErrModulePrecondition))
 	})
 
 	t.Run("get embed URL", func(t *testing.T) {
@@ -174,6 +176,7 @@ func TestClient(t *testing.T) {
 
 		require.NotNil(t, err)
 		assert.Equal(t, "cluster URL: no cluster URL found in request header: X-Weaviate-Cluster-Url", err.Error())
+		assert.ErrorAs(t, err, new(enterrors.ErrModulePrecondition))
 	})
 }
 

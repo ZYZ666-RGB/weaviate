@@ -28,6 +28,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	enterrors "github.com/weaviate/weaviate/entities/errors"
 	"github.com/weaviate/weaviate/entities/schema"
 	"github.com/weaviate/weaviate/usecases/config"
 	"github.com/weaviate/weaviate/usecases/monitoring"
@@ -176,6 +177,7 @@ func TestClient_Vectorize_MissingApiKey(t *testing.T) {
 	_, _, _, err := c.Vectorize(context.Background(), []string{"hello"}, cfg)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "no api key found")
+	assert.ErrorAs(t, err, new(enterrors.ErrModulePrecondition))
 }
 
 func TestClient_Vectorize_OutOfOrderResponse(t *testing.T) {

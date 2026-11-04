@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	enterrors "github.com/weaviate/weaviate/entities/errors"
 	"github.com/weaviate/weaviate/usecases/modulecomponents"
 
 	"github.com/pkg/errors"
@@ -185,6 +186,7 @@ func TestClient(t *testing.T) {
 		assert.EqualError(t, err, "API Key: no api key found "+
 			"neither in request header: X-Jinaai-Api-Key "+
 			"nor in environment variable under JINAAI_APIKEY")
+		assert.ErrorAs(t, err, new(enterrors.ErrModulePrecondition))
 	})
 
 	t.Run("when X-Jinaai-Api-Key header is passed but empty", func(t *testing.T) {

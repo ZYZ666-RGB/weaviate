@@ -12,10 +12,15 @@
 package nearText
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	enterrors "github.com/weaviate/weaviate/entities/errors"
 )
 
 func TestMoveVectorToAnother(t *testing.T) {
@@ -172,4 +177,54 @@ func TestMoveVectorToAnother(t *testing.T) {
 			assert.Equal(t, err, fmt.Errorf("move away from operations are not applicable for multivector embeddings"))
 		})
 	})
+}
+
+// TestSearcherKeepsModulePrecondition: the REST handler maps the module's
+// typed error to 422, so the searcher's wraps must keep it reachable.
+func TestSearcherKeepsModulePrecondition(t *testing.T) {
+	const msg = "no api key found neither in request header: X-Openai-Api-Key nor in environment variable under OPENAI_APIKEY"
+
+	tests := []struct {
+		name    string
+		params  *NearTextParams
+		okCalls int
+		wantMsg string
+	}{
+		{
+			name:    "keywords",
+			params:  &NearTextParams{Values: []string{"space"}},
+			wantMsg: "vectorize keywords: " + msg,
+		},
+		{
+			name: "move to",
+			params: &NearTextParams{
+				Values: []string{"space"},
+				MoveTo: ExploreMove{Values: []string{"stars"}, Force: 0.5},
+			},
+			okCalls: 1,
+			wantMsg: "vectorize move to: vectorize move to: " + msg,
+		},
+		{
+			name: "move away from",
+			params: &NearTextParams{
+				Values:       []string{"space"},
+				MoveAwayFrom: ExploreMove{Values: []string{"stars"}, Force: 0.5},
+			},
+			okCalls: 1,
+			wantMsg: "vectorize move away from: vectorize move to: " + msg,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			vectorizer := &failingVectorizer{okCalls: tt.okCalls, err: enterrors.NewErrModulePrecondition(errors.New(msg))}
+			searcher := NewSearcher[[]float32](vectorizer)
+
+			_, err := searcher.VectorSearches()["nearText"](context.Background(), tt.params, "Movie", nil, tenantlessClassConfig{})
+			require.Error(t, err)
+			require.EqualError(t, err, tt.wantMsg)
+			var precondition enterrors.ErrModulePrecondition
+			require.ErrorAs(t, err, &precondition)
+			require.EqualError(t, precondition, msg)
+		})
+	}
 }

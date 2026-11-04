@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	enterrors "github.com/weaviate/weaviate/entities/errors"
 	"github.com/weaviate/weaviate/usecases/modulecomponents"
 
 	"github.com/pkg/errors"
@@ -122,6 +123,7 @@ func TestClient(t *testing.T) {
 		assert.EqualError(t, err, "API Key: no Databricks token found "+
 			"neither in request header: X-Databricks-Token "+
 			"nor in environment variable under DATABRICKS_TOKEN")
+		assert.ErrorAs(t, err, new(enterrors.ErrModulePrecondition))
 	})
 
 	t.Run("when X-Databricks-Token header is passed but empty", func(t *testing.T) {
