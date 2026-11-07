@@ -13,6 +13,7 @@ package errors
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/weaviate/weaviate/entities/models"
@@ -67,6 +68,15 @@ func NewForbiddenWithCause(cause error) Forbidden {
 }
 
 func (f Forbidden) Unwrap() error { return f.cause }
+
+// WithVerb returns f reporting verb as the denied action.
+func (f Forbidden) WithVerb(verb string) Forbidden {
+	f.verb = verb
+	return f
+}
+
+// PublicErrorCode is the stable numeric status for an authorization failure.
+func (f Forbidden) PublicErrorCode() int { return http.StatusForbidden }
 
 func (f Forbidden) Error() string {
 	if f.cause != nil {
